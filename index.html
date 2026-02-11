@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiFlow | Premium Digital Assets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; scroll-behavior: smooth; }
+        
+        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        .modal-overlay { transition: all 0.4s ease; clip-path: circle(0% at 50% 50%); opacity: 0; pointer-events: none; }
+        .modal-overlay.open { clip-path: circle(150% at 50% 50%); opacity: 1; pointer-events: auto; }
+        
+        .no-scroll { overflow: hidden; }
+        #modal-description { white-space: pre-line; }
+        
+        .reels-video-wrapper { position: relative; padding-bottom: 177.77%; height: 0; overflow: hidden; border-radius: 12px; background: #000; }
+        .reels-video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        .faq-item { border-bottom: 1px solid #e2e8f0; cursor: pointer; }
+        .faq-question { width: 100%; text-align: left; padding: 1rem 0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; color: #64748b; font-size: 0.95rem; }
+        .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 1rem; }
+        .faq-item.active i { transform: rotate(180deg); }
+
+        .timer-box { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; }
+
+        #purchase-notification {
+            position: fixed; bottom: 24px; left: -400px;
+            background: white; border-radius: 12px; padding: 12px 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            display: flex; align-items: center; gap: 12px; z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            border: 1px solid #e2e8f0;
+        }
+        #purchase-notification.show { left: 24px; }
+        .whatsapp-float { position: fixed; bottom: 24px; right: 24px; background-color: #25d366; color: white; border-radius: 50px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 30px; z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 w-full border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 p-2 rounded-lg"><i class="fas fa-bolt text-white"></i></div>
+                <span class="text-xl font-bold tracking-tighter text-slate-900">DIGI<span class="text-indigo-600">FLOW</span></span>
+            </div>
+            <div class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100">Store Verified</div>
+        </div>
+    </nav>
+
+    <header class="bg-white border-b border-slate-100 py-12 px-4 text-center">
+        <h1 class="text-4xl font-extrabold sm:text-6xl text-slate-900">Premium Digital Assets</h1>
+        <p class="mt-4 max-w-xl mx-auto text-lg text-slate-500">Premium Reels bundles & courses with instant delivery.</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </main>
+
+    <div id="product-modal" class="modal-overlay fixed inset-0 z-50 bg-white overflow-y-auto">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-md z-10 border-b p-4">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <button onclick="closeModal()" class="font-bold text-slate-600 hover:text-indigo-600 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> BACK</button>
+                <div id="modal-category" class="bg-indigo-50 text-indigo-700 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest"></div>
+            </div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+            <div class="flex flex-col lg:flex-row gap-12">
+                <div class="w-full lg:w-5/12">
+                    <img id="modal-img" src="" class="w-full rounded-[2.5rem] shadow-2xl border border-slate-100 sticky top-24">
+                </div>
+                <div class="w-full lg:w-7/12">
+                    <div class="timer-box mb-6">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Discount expires in: <span id="countdown">15:00</span></span>
+                    </div>
+
+                    <h2 id="modal-name" class="text-3xl md:text-5xl font-black mb-4 leading-tight"></h2>
+                    <div class="flex items-center gap-4 mb-8">
+                        <span id="modal-price" class="text-4xl font-extrabold text-indigo-600"></span>
+                        <span class="text-slate-400 line-through text-xl" id="old-price"></span>
+                        <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded uppercase">Save 80%</span>
+                    </div>
+                    
+                    <div class="mb-10">
+                        <h4 class="text-slate-900 font-bold mb-4 uppercase tracking-widest text-[10px] border-b pb-2">Full Description</h4>
+                        <p id="modal-description" class="text-slate-600 text-lg leading-relaxed"></p>
+                    </div>
+
+                    <div id="video-section" class="hidden mb-12">
+                        <h4 class="text-slate-900 font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-play-circle text-indigo-600"></i> SAMPLE REELS</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="reels-video-wrapper"><iframe id="video1" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+                            <div class="reels-video-wrapper"><iframe id="video2" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-12">
+                        <h4 class="text-slate-900 font-bold mb-4 uppercase tracking-widest text-[10px] border-b pb-2 text-indigo-600">Common Questions</h4>
+                        <div id="faq-container"></div>
+                    </div>
+
+                    <a id="modal-pay-link" href="#" target="_blank" class="w-full bg-indigo-600 text-white py-6 rounded-2xl font-bold text-xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-xl">
+                        GET INSTANT ACCESS <i class="fa-solid fa-bolt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="purchase-notification">
+        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600"><i class="fa-solid fa-shopping-bag"></i></div>
+        <div><p class="text-sm font-bold text-slate-800" id="notify-name"></p><p class="text-xs text-slate-500" id="notify-product"></p><p class="text-[10px] text-indigo-500 font-bold mt-1 uppercase">Just Now</p></div>
+    </div>
+
+    <a href="https://wa.me/8764023747" target="_blank" class="whatsapp-float"><i class="fa-brands fa-whatsapp"></i></a>
+
+    <script>
+        const products = [
+            { id: 1, name: "600+ AI Baby Reels Bundle", price: 49, old: 499, category: "reels", image: "https://ricostudy.com/wp-content/uploads/2026/01/il_1588xN.7340625449_gob4-Ready-1-scaled.jpg", videos: ["https://www.youtube.com/embed/dQw4w9WgXcQ", "https://www.youtube.com/embed/dQw4w9WgXcQ"], payLink: "https://propayment.in/product/bc0195aa-06c1-4306-93e4-c06f5037284f", desc: `🚨 600+ AI Baby Reels Bundle! 👶✨\n✅ 600+ Ultra HD Vertical Reels\n✅ 100% Copyright Free\n✅ No Watermarks\n✅ Instant Lifetime Access` },
+            { id: 2, name: "1000+ Doremon REELS BUNDLE Download", price: 59, old: 999, category: "reels", image: "https://picasso.cosmofeed.com/media.cosmofeed.com/Doremon-2025-04-12-10-02-3.png?w=600&q=100", videos: ["https://www.youtube.com/embed/gWgi1zH9L24", "https://www.youtube.com/embed/dQw4w9WgXcQ"], payLink: "https://propayment.in/pay/ffb74d82-fa4e-40ba-8ffb-af44c3fb6bfa", desc: `DO YOU WANT TO GROW YOUR SOCIAL MEDIA?\n\n✅ GET AN INSTANT DOWNLOAD LINK AND LIFETIME ACCESS\n\n✅ READY TO POST: READY TO POST ON SOCIAL MEDIA\n\n✅ TIME-SAVING: SAVES LOT OF TIME OF CREATORS\n\n🔒GET INSTANT DOWNLOAD LINK & LIFETIME ACCESS🔒\n\n⏲ SAVE TIME AND GROW YOUR SOCIAL MEDIA CHANNELS INSTANTLY WITH THESE READYMADE REELS CREATED BY MASTERS AND EXPERTS!​\n\n🚚File Delivery Process\n\n➡️ Once You Place the Order.\n➡️ You will get an Email with Access to the Product & download the PDF\n➡️ Once You Download the PDF Click On The Link given on the PDF. From the PDF You Will Be Taken To Google Drive.\nALL BUNDLES AT JUST @59\n\n\n🏃HURRY UP!..🏃\nBECAUSE WE HAVE ONLY LIMITED STOCK AVAILABLE\nBUY + DOWNLOAD + UPLOAD AND THANKS ME LATER..!` },
+            { id: 3, name: "500+ Cricket Highlights Bundle", price: 29, old: 999, category: "reels", image: "https://www.zeeshanstore.com/public/uploads/all/bw3L4WLtzMdUASUebWXPolKpT8uOtU7RE0kazJTU.jpg", videos: ["https://www.youtube.com/embed/dQw4w9WgXcQ", "https://www.youtube.com/embed/dQw4w9WgXcQ"], payLink: "https://propayment.in/pay/ffb74d82-fa4e-40ba-8ffb-af44c3fb6bfa", desc: `🏏 500+ Cricket Reels Bundle:\n✅ 500+ HD Vertical Clips\n✅ Ready-to-post on Reels & Shorts\n✅ Dynamic Editing with Viral Audio` },
+            { id: 4, name: "3D Animation Masterclass (Mobile)", price: 99, old: 1999, category: "Course", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQD_f0X8m4T5jI0uWsOByKlfFxWDczVrFwYUg&s", videos: ["https://www.youtube.com/embed/dQw4w9WgXcQ", "https://www.youtube.com/embed/dQw4w9WgXcQ"], payLink: "#", desc: `🎬 Master 3D Animation using Mobile!\n✅ Step-by-Step Modeling & Animation\n✅ Professional SFX & Editing\n🎁 BONUS: 2000+ Cartoon Story Assets Free!` },
+            { id: 5, name: "1000+ Viral Movie Clips Bundle", price: 99, old: 499, category: "reels", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ83KhJ7ZLP5EiT41haBLgi2GdW6QBjT53zNA&s", videos: ["https://www.youtube.com/embed/dQw4w9WgXcQ", "https://www.youtube.com/embed/dQw4w9WgXcQ"], payLink: "https://propayment.in/pay/d53acdcf-335e-4d1b-8c3d-59539ec0dc39", desc: `🎥 1000+ Viral Movies Clip Bundle!\n✅ 1000+ Carefully Edited Clips\n✅ Copyright-Friendly Format\n✅ Zero Watermarks\n✅ FREE Facebook Page Growth Guide!` },
+             { id: 6, name: "AI Health Reels Bundle", price: 49, old: 499, category: "reels", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD60HwwyD5EdG7f6eKKiEL9n3wFExg52jx8w&s", videos: ["https://www.youtube.com/embed/dQw4w9WgXcQ", "https://www.youtube.com/embed/dQw4w9WgXcQ"], payLink: "https://propayment.in/pay/d53acdcf-335e-4d1b-8c3d-59539ec0dc39", desc: `Premium AI-generated health reels bundle featuring creative anatomy, nutrition & wellness visuals.\nPerfect for Instagram Reels & YouTube Shorts.\nOne-time purchase • Lifetime access • Instant download.` }
+        ];
+
+        const faqs = [{ q: "How do I get the files?", a: "Instantly via Google Drive link after payment." }, { q: "Is it a one-time payment?", a: "Yes! No hidden subscriptions or monthly fees." }];
+        const names = ["Aarav P.", "Rahul S.", "Sneha K.", "Vikram J.", "Priya D.", "Amit R."];
+        let timerInterval;
+
+        function renderProducts() {
+            document.getElementById('product-grid').innerHTML = products.map(p => `
+                <div class="product-card bg-white border border-slate-200 rounded-2xl overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
+                    <img src="${p.image}" class="w-full aspect-square object-cover">
+                    <div class="p-4">
+                        <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">${p.category}</span>
+                        <h3 class="font-bold text-slate-900 mt-1 mb-3 line-clamp-1">${p.name}</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-black text-slate-900">₹${p.price}</span>
+                            <div class="bg-indigo-50 text-indigo-600 p-2 rounded-lg"><i class="fa-solid fa-play text-[10px]"></i></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startTimer() {
+            let time = 900; // 15 Minutes
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                let mins = Math.floor(time / 60);
+                let secs = time % 60;
+                document.getElementById('countdown').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (time <= 0) clearInterval(timerInterval);
+                time--;
+            }, 1000);
+        }
+
+        function openModal(id) {
+            const p = products.find(x => x.id === id);
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-name').innerText = p.name;
+            document.getElementById('modal-category').innerText = p.category;
+            document.getElementById('modal-description').innerText = p.desc;
+            document.getElementById('modal-price').innerText = `₹${p.price}`;
+            document.getElementById('old-price').innerText = `₹${p.old}`;
+            document.getElementById('modal-pay-link').href = p.payLink;
+            
+            if (p.videos && p.videos.length >= 2) {
+                document.getElementById('video-section').classList.remove('hidden');
+                // Thumbnails will show automatically because of the /embed/ format
+                document.getElementById('video1').src = p.videos[0];
+                document.getElementById('video2').src = p.videos[1];
+            } else { 
+                document.getElementById('video-section').classList.add('hidden'); 
+            }
+
+            document.getElementById('faq-container').innerHTML = faqs.map(f => `
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question"><span>${f.q}</span><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                    <div class="faq-answer">${f.a}</div>
+                </div>
+            `).join('');
+
+            startTimer();
+            document.getElementById('product-modal').classList.add('open');
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeModal() {
+            document.getElementById('product-modal').classList.remove('open');
+            document.getElementById('video1').src = "";
+            document.getElementById('video2').src = "";
+            document.body.classList.remove('no-scroll');
+        }
+
+        function notify() {
+            const n = document.getElementById('purchase-notification');
+            document.getElementById('notify-name').innerText = names[Math.floor(Math.random()*names.length)];
+            document.getElementById('notify-product').innerText = "purchased " + products[Math.floor(Math.random()*products.length)].name;
+            n.classList.add('show');
+            setTimeout(() => n.classList.remove('show'), 4000);
+        }
+
+        setInterval(notify, 12000);
+        renderProducts();
+    </script>
+</body>
+</html>
